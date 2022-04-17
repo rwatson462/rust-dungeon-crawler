@@ -10,20 +10,21 @@ pub struct MapBuilder {
 }
 
 impl MapBuilder {
-    pub fn new(map: Map) -> Self {
-        MapBuilder {
-            map,
-            rooms: vec![],
+    pub fn new(rng: &mut RandomNumberGenerator) -> Self {
+
+        let mut mb = MapBuilder {
+            map: Map::new(),
+            rooms: Vec::new(),
             player_start: Point::zero()
-        }
-    }
+        };
+        mb.fill(TileType::Wall);
+        mb.build_random_rooms(rng);
+        mb.build_corridors(rng);
 
-    pub fn build_map(&mut self) {
-        self.fill(TileType::Wall);
+        // start in the first room generated
+        mb.player_start = mb.rooms[0].center();
 
-        let mut rng = RandomNumberGenerator::new();
-        self.build_random_rooms(&mut rng);
-        self.set_player_start();
+        mb
     }
 
     fn fill(&mut self, tile: TileType) {
@@ -60,16 +61,40 @@ impl MapBuilder {
         }
     }
 
-    fn set_player_start(&mut self) {
-        // find the room in the top left corner of the map
-        // set the player's start position to the center(ish) of that room
-        let mut best_room = self.rooms[0];
-        for room in self.rooms.iter() {
-            if room.center().x <= best_room.center().x && room.center().y <= best_room.center().y {
-                best_room = *room;
+    fn build_corridors(&mut self, rng: &mut RandomNumberGenerator) {
+        let mut rooms = self.rooms.clone();
+        rooms.sort_by(|a,b| a.center().x.cmp(&b.center().x));
+
+        for (i,room) in rooms.iter().enumerate().skip(1) {
+            let prev = rooms[i-1].center();
+            let new = room.center();
+
+            if rng.range(0,2) == 1 {
+                self.apply_horizontal_tunnel(prev.x, new.x, prev.y);
+                self.apply_vertical_tunnel(prev.y, new.y, new.x);
+            } else {
+                self.apply_vertical_tunnel(prev.y, new.y, prev.x);
+                self.apply_horizontal_tunnel(prev.x, new.x, new.y);
             }
         }
-
-        self.player_start = best_room.center();
     }
+
+    fn apply_vertical_tunnel(&mut self, y1: i32, y2: i32, x: i32) {
+        use std::cmp::{min,max};
+        for y in min(y1,y2) ..= max(y1,y2) {
+            if let Some(idx) = self.map.point_exists_in_map(Point::new(x, y)) {
+                self.map.tiles[idx as usize] = TileType::Floor;
+            }
+        }
+    }
+
+    fn apply_horizontal_tunnel(&mut self, x1: i32, x2: i32, y: i32) {
+        use std::cmp::{min,max};
+        for x in min(x1,x2) ..= max(x1,x2) {
+            if let Some(idx) = self.map.point_exists_in_map(Point::new(x, y)) {
+                self.map.tiles[idx as usize] = TileType::Floor;
+            }
+        }
+    }
+
 }
