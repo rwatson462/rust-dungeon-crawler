@@ -41,20 +41,30 @@ impl State {
             };
         }
     }
+
+    fn clear_canvas(&self, ctx: &mut BTerm) {
+        ctx.set_active_console(0);
+        ctx.cls();
+        ctx.set_active_console(1);
+        ctx.cls();
+    }
+
+    fn update(&mut self, ctx: &mut BTerm) {
+        self.player.update(ctx, &self.map, &mut self.camera);
+    }
+
+    fn render(&mut self, ctx: &mut BTerm) {
+        self.clear_canvas(ctx);
+        self.map.render(ctx, &self.camera);
+        self.player.render(ctx, &self.camera);
+    }
 }
 
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
         self.poll_for_user_input(ctx);
-        self.player.update(ctx, &self.map, &mut self.camera);
-
-        ctx.set_active_console(0);
-        ctx.cls();
-        ctx.set_active_console(1);
-        ctx.cls();
-
-        self.map.render(ctx, &self.camera);
-        self.player.render(ctx, &self.camera);
+        self.update(ctx);
+        self.render(ctx);
     }
 }
 

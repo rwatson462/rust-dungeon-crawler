@@ -22,7 +22,8 @@ impl Map {
 
     pub fn render(&self, ctx: &mut BTerm, camera: &Camera) {
         ctx.set_active_console(0);
-        for y in camera.top_y..camera.bottom_y {
+        // weirdly, using .. for the Y axis leaves us with an empty space at the bottom of the window
+        for y in camera.top_y..=camera.bottom_y {
             for x in camera.left_x..camera.right_x {
                 if self.in_bounds(Point::new(x,y)) {
                     let idx = map_index_from_coords(x,y);
