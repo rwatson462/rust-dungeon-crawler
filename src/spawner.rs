@@ -18,6 +18,7 @@ pub fn spawn_monster(
 ) {
     ecs.push((
         Monster,
+        MovingRandomly,
         pos,
         Render {
             colour: ColorPair::new(WHITE,BLACK),
