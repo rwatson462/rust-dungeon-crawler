@@ -17,6 +17,7 @@ pub fn spawn_monster(
     pos: Point
 ) {
     ecs.push((
+        Monster,
         pos,
         Render {
             colour: ColorPair::new(WHITE,BLACK),
