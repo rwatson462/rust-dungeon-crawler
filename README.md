@@ -14,10 +14,10 @@ _The Rusty Dungeon_
 
 ## Initial release
 The game is considered "ready for release" when these goals have been achieved:
- 1. Create procedurally generated map
- 2. Create the Player and enable movement
-    * 4 axis of movement, no diagonal moves supported
-    * Add collision with walls
+ 1. Create procedurally generated map - DONE
+ 2. Create the Player and enable movement - DONE
+    * 4 axis of movement, no diagonal moves supported - DONE
+    * Add collision with walls - DONE
  3. Allow exiting the level and starting new levels
  4. Add Monsters that roam randomly, killing the player if they touch
  5. Add combat:
@@ -45,4 +45,3 @@ Once the game is complete, these goals may or may not be added later
     * Extra speed
     * Less damage received
  5. Add visual effects to make the game look better
- 
