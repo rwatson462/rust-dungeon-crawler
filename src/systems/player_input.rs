@@ -21,43 +21,46 @@ pub fn player_input(
             .find_map(|(entity,pos)| Some((*entity, *pos)))
             .unwrap();
 
-        let delta = match key {
-            VirtualKeyCode::A => Point::new(-1,0),
-            VirtualKeyCode::D => Point::new(1,0),
-            VirtualKeyCode::W => Point::new(0,-1),
-            VirtualKeyCode::S => Point::new(0,1),
+        let delta_option = match key {
+            VirtualKeyCode::A => Some(Point::new(-1,0)),
+            VirtualKeyCode::D => Some(Point::new(1,0)),
+            VirtualKeyCode::W => Some(Point::new(0,-1)),
+            VirtualKeyCode::S => Some(Point::new(0,1)),
             VirtualKeyCode::H => {
                 if let Ok(mut health) = ecs.entry_mut(player_entity).unwrap().get_component_mut::<Health>() {
                     health.current = i32::min(health.max, health.current+1);
                 }
-                Point::zero()
+                Some(Point::zero())
             },
-            _ => Point::zero()
+            _ => None
         };
 
-        let destination = player_pos + delta;
+        if let Some(delta) = delta_option {
 
-        if delta.x != 0 || delta.y != 0 {
-            let mut hit_something = false;
-            <(Entity,&Point)>::query()
-                .filter(component::<Monster>())
-                .iter(ecs)
-                .filter(|(_,pos)| **pos == destination)
-                .for_each(|(entity,_)| {
-                    hit_something = true;
-                    commands.push(((), WantsToAttack {
-                        attacker: player_entity,
-                        victim: *entity
-                    }));
-                });
+            let destination = player_pos + delta;
 
-            if !hit_something {
-                players.iter_mut(ecs).for_each(|(entity,pos)| {
-                    let destination = *pos + delta;
-                    commands.push(((), WantsToMove{ entity: *entity, destination}));
-                });
+            if delta.x != 0 || delta.y != 0 {
+                let mut hit_something = false;
+                <(Entity,&Point)>::query()
+                    .filter(component::<Monster>())
+                    .iter(ecs)
+                    .filter(|(_,pos)| **pos == destination)
+                    .for_each(|(entity,_)| {
+                        hit_something = true;
+                        commands.push(((), WantsToAttack {
+                            attacker: player_entity,
+                            victim: *entity
+                        }));
+                    });
+
+                if !hit_something {
+                    players.iter_mut(ecs).for_each(|(entity,pos)| {
+                        let destination = *pos + delta;
+                        commands.push(((), WantsToMove{ entity: *entity, destination}));
+                    });
+                }
             }
-        
+            
             *turn_state = TurnState::PlayerTurn;
         }
     }
