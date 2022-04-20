@@ -76,6 +76,28 @@ impl State {
         // reset to console level 0 after clearing all canvases
         ctx.set_active_console(0);
     }
+
+    fn game_over(&mut self, ctx: &mut BTerm) {
+        ctx.set_active_console(2);
+        ctx.print_color_centered(2, RED, BLACK, "Your quest has failed!");
+        ctx.print_color_centered(4, WHITE, BLACK, "Press [SPACE] to try again");
+
+        if let Some(VirtualKeyCode::Space) = ctx.key {
+            self.ecs = World::default();
+            self.resources = Resources::default();
+            let mut rng = RandomNumberGenerator::new();
+            let map_builder = MapBuilder::new(&mut rng);
+            spawn_player(&mut self.ecs, map_builder.player_start);
+            map_builder.rooms
+                .iter()
+                .skip(1)
+                .map(|r| r.center())
+                .for_each(|pos| spawn_monster(&mut self.ecs, &mut rng, pos));
+            self.resources.insert(map_builder.map);
+            self.resources.insert(Camera::new(map_builder.player_start));
+            self.resources.insert(TurnState::AwaitingInput);
+        }
+    }
 }
 
 impl GameState for State {
@@ -87,8 +109,9 @@ impl GameState for State {
         let current_state = self.resources.get::<TurnState>().unwrap().clone();
         match current_state {
             TurnState::AwaitingInput => self.input_systems.execute(&mut self.ecs, &mut self.resources),
-            TurnState::PlayerTurn => self.player_turn_systems.execute(&mut self.ecs, &mut self.resources),
-            TurnState::MonsterTurn => self.monster_turn_systems.execute(&mut self.ecs, &mut self.resources)
+            TurnState::PlayerTurn    => self.player_turn_systems.execute(&mut self.ecs, &mut self.resources),
+            TurnState::MonsterTurn   => self.monster_turn_systems.execute(&mut self.ecs, &mut self.resources),
+            TurnState::GameOver      => self.game_over(ctx)
         }
         render_draw_buffer(ctx).expect("Render error");
     }

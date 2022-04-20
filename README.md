@@ -19,11 +19,11 @@ The game is considered "ready for release" when these goals have been achieved:
     * 4 axis of movement, no diagonal moves supported - DONE
     * Add collision with walls - DONE
  3. Allow exiting the level and starting new levels
- 4. Add Monsters that roam randomly, killing the player if they touch
+ 4. Add Monsters that roam randomly, killing the player if they touch - DONE
  5. Add combat:
-    * Add Player/Monster health so player can take a few hits before death
-    * Add Player fighting abilities so Monsters can be defeated
- 6. Add Death screen and game restart mechanism
+    * Add Player/Monster health so player can take a few hits before death - DONE
+    * Add Player fighting abilities so Monsters can be defeated - DONE
+ 6. Add Death screen and game restart mechanism - DONE
  7. Add Basic loot system, starting with Health potion
  8. Add the dungeon Key to the level, required to be picked up before exiting a level
  9. Add Treasure to loot system
