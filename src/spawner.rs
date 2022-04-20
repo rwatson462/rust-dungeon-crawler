@@ -22,29 +22,36 @@ pub fn spawn_monster(
     pos: Point
 ) {
 
-    let (hp, name, glyph) = match rng.roll_dice(1,10) {
-        1..=8 => goblin(),
-        _ => orc()
+    match rng.roll_dice(1,10) {
+        1..=7 => spawn_goblin(ecs, pos),
+        _ => spawn_orc(ecs, pos)
     };
+}
 
+fn spawn_goblin(ecs: &mut World, pos: Point) {
     ecs.push((
         Monster,
         MovingRandomly,
         pos,
         Render {
             colour: ColorPair::new(WHITE,BLACK),
-            glyph
+            glyph: to_cp437('g')
         },
-        Health { current: hp, max: hp },
-        Name(name)
+        Health { current: 1, max: 1 },
+        Name("Goblin".to_string())
     ));
 }
 
-
-fn goblin() -> (i32, String, FontCharType) {
-    (1, "Goblin".to_string(), to_cp437('g'))
-}
-
-fn orc() -> (i32, String, FontCharType) {
-    (2, "Orc".to_string(), to_cp437('o'))
+fn spawn_orc(ecs: &mut World, pos: Point) {
+    ecs.push((
+        Monster,
+        SmarterMonster,
+        pos,
+        Render {
+            colour: ColorPair::new(WHITE,BLACK),
+            glyph: to_cp437('o')
+        },
+        Health { current: 2, max: 2 },
+        Name("Orc".to_string())
+    ));
 }
