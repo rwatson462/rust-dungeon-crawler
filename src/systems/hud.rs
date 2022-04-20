@@ -13,7 +13,7 @@ pub fn hud(ecs: &SubWorld) {
 
     let mut batch_draw = DrawBatch::new();
     batch_draw.target(2);
-    batch_draw.print_centered(1, "Explore the dungeon. [W/A/S/D] to move, [H] to heal");
+    batch_draw.print_centered(1, "Explore the dungeon. [W/A/S/D] to move");
     batch_draw.bar_horizontal(
         Point::new(0,3),
         20,
